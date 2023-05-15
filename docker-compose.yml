@@ -7,9 +7,27 @@ services:
     restart: always
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: postgres
+      POSTGRES_PASSWORD: postgrespw
+    networks:
+      - q_a_network
     ports:
       - 5432:5432
     volumes:
       - ./data:/var/lib/postgresql/data
+
+  db_admin:
+    container_name: db_q_a_admin
+    image: dpage/pgadmin4
+    restart: always
+    depends_on:
+      - db
+    networks:
+      - q_a_network
+    ports:
+      - 5555:80
+    environment:
+      PGADMIN_DEFAULT_EMAIL: user@domain.com
+      PGADMIN_DEFAULT_PASSWORD: SuperSecret
+
+networks:
+  q_a_network:
