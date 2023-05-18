@@ -1117,6 +1117,7 @@ dependencies = [
 name = "question-answer-api-rust"
 version = "0.1.0"
 dependencies = [
+ "async-trait",
  "chrono",
  "dotenvy",
  "log",
@@ -1124,6 +1125,7 @@ dependencies = [
  "rocket",
  "serde",
  "sqlx",
+ "thiserror",
  "tokio",
 ]
 

@@ -4,6 +4,7 @@ extern crate rocket;
 mod cors;
 mod handlers;
 mod models;
+mod persistence;
 
 use cors::*;
 use handlers::*;
@@ -21,13 +22,13 @@ async fn rocket() -> _ {
         .await
         .unwrap();
 
-    let recs = sqlx::query!("SELECT * FROM questions")
-        .fetch_all(&pool)
-        .await
-        .unwrap();
+    // let recs = sqlx::query!("SELECT * FROM questions")
+    //     .fetch_all(&pool)
+    //     .await
+    //     .unwrap();
 
-    info!("********* Question Records *********");
-    info!("{:?}", recs);
+    // info!("********* Question Records *********");
+    // info!("{:?}", recs);
 
     rocket::build()
         .mount(
