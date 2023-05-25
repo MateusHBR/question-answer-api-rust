@@ -1,45 +1,44 @@
-use chrono::{DateTime, Local};
-use rocket::serde::json::Json;
-use std::time::SystemTime;
-
+use super::{
+    private::{self},
+    APIError,
+};
 use crate::models::*;
+use crate::persistence::question_dao::QuestionDao;
+use rocket::{serde::json::Json, State};
 
 #[post("/question", data = "<question>")]
-pub async fn create_question(question: Json<Question>) -> Json<QuestionDetail> {
-    let now = SystemTime::now();
-    let now: DateTime<Local> = now.into();
+pub async fn create_question(
+    question: Json<Question>,
+    question_dao: &State<Box<dyn QuestionDao + Sync + Send>>,
+) -> Result<Json<QuestionDetail>, APIError> {
+    // let now = SystemTime::now();
+    // let now: DateTime<Local> = now.into();
+    let result = private::create_question(question.0, question_dao)
+        .await
+        .map_err(|err| APIError::from(err))?;
 
-    Json(QuestionDetail {
-        question_uuid: "Question id".to_owned(),
-        title: question.0.title,
-        description: question.0.description,
-        created_at: now.to_rfc3339(),
-    })
+    Ok(Json(result))
 }
 
 #[get("/questions")]
-pub async fn read_questions() -> Json<Vec<QuestionDetail>> {
-    let now = SystemTime::now();
-    let now: DateTime<Local> = now.into();
+pub async fn get_questions(
+    question_dao: &State<Box<dyn QuestionDao + Sync + Send>>,
+) -> Result<Json<Vec<QuestionDetail>>, APIError> {
+    let result = private::get_questions(question_dao)
+        .await
+        .map_err(|err| APIError::from(err))?;
 
-    Json(vec![
-        QuestionDetail {
-            question_uuid: "q1".to_owned(),
-            title: "First question".to_owned(),
-            description: "First question".to_owned(),
-            created_at: now.to_rfc3339(),
-        },
-        QuestionDetail {
-            question_uuid: "q2".to_owned(),
-            title: "Second question".to_owned(),
-            description: "Second question".to_owned(),
-            created_at: now.to_rfc3339(),
-        },
-    ])
+    Ok(Json(result))
 }
 
 #[delete("/question/<question_uuid>")]
-pub async fn delete_question(question_uuid: String) {
-    println!("Delete question with id: {}", question_uuid);
-    // Todo: implement
+pub async fn delete_question(
+    question_uuid: String,
+    question_dao: &State<Box<dyn QuestionDao + Sync + Send>>,
+) -> Result<(), APIError> {
+    private::delete_question(question_uuid, question_dao)
+        .await
+        .map_err(|err| APIError::from(err))?;
+
+    Ok(())
 }
